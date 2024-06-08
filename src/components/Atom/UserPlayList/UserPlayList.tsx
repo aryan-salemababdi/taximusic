@@ -1,4 +1,5 @@
-import React, { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent } from 'react';
+import { NextPage } from 'next';
 import parse from 'id3-parser';
 import { Box, CardContent, CardMedia, IconButton, Typography, TextField } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
@@ -15,7 +16,7 @@ interface SongInfo {
     picture: string | null;
 }
 
-const UserPlayList: React.FC = () => {
+const UserPlayList: NextPage = () => {
     const theme = useTheme();
     const [files, setFiles] = useState<File[]>([]);
     const [songInfos, setSongInfos] = useState<SongInfo[]>([]);
