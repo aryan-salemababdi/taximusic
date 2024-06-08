@@ -1,11 +1,11 @@
-import { useState, ChangeEvent } from 'react';
-import { NextPage } from 'next';
+import React, { useState, ChangeEvent } from 'react';
 import parse from 'id3-parser';
-import { Box, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
+import { Box, CardContent, CardMedia, IconButton, Typography, TextField } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface SongInfo {
     title: string;
@@ -15,17 +15,28 @@ interface SongInfo {
     picture: string | null;
 }
 
-const UserPlayList: NextPage = () => {
+const UserPlayList: React.FC = () => {
     const theme = useTheme();
-    const [file, setFile] = useState<File | null>(null);
-    const [songInfo, setSongInfo] = useState<SongInfo | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
+    const [songInfos, setSongInfos] = useState<SongInfo[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
 
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0] || null;
-        setFile(selectedFile);
         if (selectedFile) {
-            readFileInfo(selectedFile);
+            setFiles([...files, selectedFile]);
+            await readFileInfo(selectedFile);
         }
+    };
+
+    const handleDeleteSong = (index: number) => {
+        const updatedFiles = [...files];
+        updatedFiles.splice(index, 1);
+        setFiles(updatedFiles);
+
+        const updatedSongInfos = [...songInfos];
+        updatedSongInfos.splice(index, 1);
+        setSongInfos(updatedSongInfos);
     };
 
     const readFileInfo = async (file: File) => {
@@ -38,15 +49,15 @@ const UserPlayList: NextPage = () => {
                 const { title, artist, album, year, image } = tag;
                 const picture = image ? `data:${image.mime};base64,${Buffer.from(image.data as number[]).toString('base64')}` : null;
 
-
-
-                setSongInfo({
+                const newSongInfo: SongInfo = {
                     title: title || 'Unknown',
                     artist: artist || 'Unknown',
                     album: album || 'Unknown',
                     year: year || 'Unknown',
                     picture: picture || null,
-                });
+                };
+
+                setSongInfos([...songInfos, newSongInfo]);
             } else {
                 alert('No ID3v2 tag found');
             }
@@ -56,14 +67,27 @@ const UserPlayList: NextPage = () => {
         }
     };
 
+    const filteredSongInfos = songInfos.filter(songInfo =>
+        songInfo.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        songInfo.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        songInfo.album.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <>
-            <Box display="flex" justifyContent="center" ml={9} my={2}>
+            <Box display="flex" justifyContent="center" my={2}>
                 <input type="file" accept="audio/*" onChange={handleFileChange} />
             </Box>
-            {songInfo && (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Box display="flex" justifyContent="center" my={2}>
+                <TextField
+                    label="Search"
+                    variant="outlined"
+                    value={searchTerm}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchTerm(event.target.value)}
+                />
+            </Box>
+            {filteredSongInfos.map((songInfo, index) => (
+                <Box key={index} sx={{ display: 'flex', flexDirection: 'column' }}>
                     <CardContent>
                         <Box display="flex" justifyContent="space-between">
                             <CardMedia
@@ -72,7 +96,7 @@ const UserPlayList: NextPage = () => {
                                 src={songInfo.picture || ""}
                                 alt={songInfo.album}
                             />
-                            <Box mx={0.15}>
+                            <Box mx={1}>
                                 <Typography component="div" variant="h5">
                                     {songInfo.title}
                                 </Typography>
@@ -83,6 +107,9 @@ const UserPlayList: NextPage = () => {
                                     {songInfo.year}
                                 </Typography>
                             </Box>
+                            <IconButton sx={{ height: "fit-content" }} aria-label="delete" onClick={() => handleDeleteSong(index)}>
+                                <DeleteIcon />
+                            </IconButton>
                         </Box>
                     </CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "center", pl: 1, pb: 1 }}>
@@ -97,18 +124,10 @@ const UserPlayList: NextPage = () => {
                         </IconButton>
                     </Box>
                 </Box>
-            )}
+            ))}
         </>
     );
 };
 
-export default UserPlayList;
 
-// <div>
-//   <h3>Song Information</h3>
-//   <p>Title: {songInfo.title}</p>
-//   <p>Artist: {songInfo.artist}</p>
-//   <p>Album: {songInfo.album}</p>
-//   <p>Year: {songInfo.year}</p>
-//   {songInfo.picture && <Image src={songInfo.picture} alt="Album Art" width={100} height={100}/>}
-// </div>
+export default UserPlayList;

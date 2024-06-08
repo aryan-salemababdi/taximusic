@@ -19,12 +19,21 @@ const Music = () => {
       <Box display="flex" justifyContent="center" m={2}>
         <Card
           sx={{
-            height: "fit-content",
+            height: "300px",
             width: "300px",
+            overflowY: "auto",
             maxWidth: "300px"
           }}
         >
-          <Box display="flex" justifyContent="space-evenly" p={1}>
+          <Box
+            display="flex"
+            justifyContent="space-evenly"
+            p={1}
+            top={0}
+            position="sticky"
+            bgcolor="white"
+            zIndex={100}
+          >
             <Button variant="contained" color="error" onClick={() => selectHandller("suggestion")}>
               <Typography fontWeight="bold" >
                 پیشنهادی ها
