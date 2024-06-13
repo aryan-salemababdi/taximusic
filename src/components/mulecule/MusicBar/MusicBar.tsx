@@ -1,8 +1,10 @@
 import Music from '@/components/Atom/Music/Music';
 import { Typography } from '@mui/material';
-import React from 'react'
 
 const MusicBar = () => {
+
+
+
     return (
         <>
             <Typography 

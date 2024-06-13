@@ -1,7 +1,14 @@
 import { useState, ChangeEvent } from 'react';
 import { NextPage } from 'next';
 import parse from 'id3-parser';
-import { Box, CardContent, CardMedia, IconButton, Typography, TextField } from "@mui/material";
+import {
+    Box,
+    CardContent,
+    CardMedia,
+    IconButton,
+    Typography,
+    TextField
+} from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
